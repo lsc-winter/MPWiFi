@@ -1,0 +1,67 @@
+    Every time you change anything inside ns3 (ns3-dev-dce) run bake below from buildtop folder
+  
+  ../bake/bake.py build -vvv
+  987  cd source/ns-3-dce
+  988  ./waf --run mpwifi
+	remove .pcap and files of iperf from the folder ns-3-dce:
+ECN filter cwr and ECE mark:
+ 1080  tcpdump  -r WIFI1_csma-3-1.pcap -v 'tcp[13] & 0xc0 != 0'
+ 1081  tcpdump  -r WIFI1_csma-3-0.pcap -v 'tcp[13] & 0xc0 != 0'
+ 1082  tcpdump  -r WIFI1_csma-3-0.pcap -v 'tcp[13] & 0x40 != 0'
+ 1083  tcpdump  -r WIFI1_csma-3-0.pcap -v 'tcp[13] & 0x80 != 0'
+ 1084  tcpdump  -r WIFI1_csma-3-0.pcap -v 'tcp[13] & 0x40 != 0'
+ 
+ GDB debug:   handle SIGUSR1 nostop; bt (back trace to find error file)
+ 
+ 
+ 1100  ./waf --run mpwifi --command-template="gdb --args %s <args>"
+ 1101 
+ 1120  sudo apt-get install libncurses-dev
+ 1121  
+
+ If you change mptCP run this from mptcp folder..... 
+ 
+ 1264  make library ARCH=sim -B
+ 
+MPTCP setup.....................
+
+ 1337  git clone -b mptcp_v0.89 git://github.com/multipath-tcp/mptcp
+ 1338  git checkout -b sim3.14 mptcp_v0.89
+ 1339  cd mptcp
+ 1340  git checkout -b sim3.14 mptcp_v0.89
+ 1341  git remote add dce git://github.com/direct-code-execution/net-next-sim.git
+ 1342  git fetch dce
+ 1343  git merge dce/sim-ns3-3.14.0-branch
+ 1344  cat >> arch/sim/defconfig <<END
+ 1345  CONFIG_MPTCP=y
+ 1346  CONFIG_MPTCP_PM_ADVANCED=y
+ 1347  CONFIG_MPTCP_FULLMESH=y
+ 1348  CONFIG_MPTCP_NDIFFPORTS=y
+ 1349  CONFIG_DEFAULT_FULLMESH=y
+ 1350  CONFIG_DEFAULT_MPTCP_PM="fullmesh"
+ 1351  CONFIG_TCP_CONG_COUPLED=y
+ 1352  CONFIG_TCP_CONG_OLIA=y
+ 1353  END
+ 1354  make menuconfig ARCH=sim
+ 1355  make defconfig ARCH=sim
+ 1356  make testbin -C arch/sim/test 
+ 1357  cd arch/sim/test/buildtop/
+ 1358  ls
+ 1359  ../bake/bake.py build -vvv
+ 1360  cd source/ns-3-dce
+ 1361  ./waf --run mpwifi
+ 1362  
+ 1380  ./waf configure --with-ns3=/home/lab123/mptcp/arch/sim/test/buildtop/build --enable-kernel-stack=/home/lab123/mptcp/arch
+ 1381  cd ../../../../../..
+ 1382  make library ARCH=sim
+ 1383  cd arch/sim/test/buildtop/source/ns-3-dce
+ 1384  cd ../..
+ 1385  ../bake/bake.py build -vvv
+ 1386  cd source/ns-3-dce
+ 1387  ./waf --run mpwifi
+ 1388  
+ 
+ To change random seed.... 
+ 
+ 1854  ./waf --command-template="%s --RngSeed=3" --run mlap
+ 
